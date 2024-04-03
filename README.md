@@ -1,6 +1,6 @@
-# boomracing
+# application
 
-Boom Racing
+Flutter application
 
 ## Getting Started
 
