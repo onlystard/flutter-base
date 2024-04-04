@@ -1,3 +1,4 @@
+import 'package:boomracing/common_blocs/auth/auth_event.dart';
 import 'package:boomracing/common_blocs/auth/bloc.dart';
 import 'package:boomracing/ui/widgets/bottom_navigation_app.dart';
 import 'package:flutter/material.dart';
@@ -57,26 +58,60 @@ class _LoginSceenState extends State<LoginScreen> {
       child: Scaffold(
         body: ListView(
           padding: EdgeInsets.zero,
-          children: [
-            Form(
-                key: _formKey,
-                child: Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      TextFormField(
-                        controller: emailController,
-                        keyboardType: TextInputType.emailAddress,
-                        textInputAction: TextInputAction.next,
-                      ),
-                    ],
-                  ),
-                ))
-          ],
+          children: _formInput(context),
         ),
       ),
     );
+  }
+
+  List<Widget> _formInput(BuildContext context) {
+    return [
+      Form(
+          key: _formKey,
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                TextFormField(
+                  controller: emailController,
+                  keyboardType: TextInputType.emailAddress,
+                  textInputAction: TextInputAction.next,
+                ),
+                ValueListenableBuilder(
+                    valueListenable: passwordNotifier,
+                    builder: (_, passwordObscure, __) {
+                      return TextFormField(
+                        controller: passwordController,
+                        obscureText: passwordObscure,
+                        textInputAction: TextInputAction.done,
+                        decoration: InputDecoration(
+                          suffixIcon: IconButton(
+                            icon: Icon(passwordObscure
+                                ? Icons.visibility
+                                : Icons.visibility_off),
+                            onPressed: () {
+                              passwordNotifier.value = !passwordObscure;
+                            },
+                          ),
+                        ),
+                      );
+                    }),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: () {
+                    if (_formKey.currentState!.validate()) {
+                      context.read<AuthBloc>().add(AuthEventLogin(
+                          email: emailController.text,
+                          password: passwordController.text));
+                    }
+                  },
+                  child: const Text('Login'),
+                ),
+              ],
+            ),
+          ))
+    ];
   }
 }

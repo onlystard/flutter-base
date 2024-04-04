@@ -10,6 +10,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     this._storage,
   ) : super(AuthState.init()) {
     on<AuthEventInitialize>(_onInitialize);
+    on<AuthEventLogin>(_onLogin);
 
     add(AuthEventInitialize());
   }
@@ -31,6 +32,27 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       }
     } else {
       emit(state.copyWith(isInitializing: false, user: () => null));
+    }
+  }
+
+  Future<void> _onLogin(
+    AuthEventLogin event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(state.copyWith(isLoading: true));
+
+    try {
+      print('Login event: ${event.email} ${event.password}');
+
+      //timeout for testing
+      await Future.delayed(Duration(seconds: 3));
+      emit(state.copyWith(isLoading: false));
+    } on Exception catch (e) {
+      print(e);
+      emit(state.copyWith(
+        isLoading: false,
+        errorMessage: () => 'An error occurred',
+      ));
     }
   }
 }
